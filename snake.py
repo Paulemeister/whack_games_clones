@@ -7,10 +7,11 @@ width = (grid_size_x+1)*grid_width
 height = (grid_size_y+1)*grid_width
 pygame.init()
 screen = pygame.display.set_mode([width, height])
-
-cube_size = 0.1
+clock = pygame.time.Clock()
+cube_size = 0.8
 array = []
 running = True
+last_key = 0
 
 def to_screen(coord):
 	result = (coord+0.5)*grid_width
@@ -26,7 +27,7 @@ class Snake:
 		for i in range(lenght,0,-1):
 			print(i)
 			x = to_screen(self.position[0])
-			y = to_screen(self.position[1]+i-1)
+			y = to_screen(self.position[1]+-1)
 			rect = pygame.Rect(x,y,grid_width*cube_size,grid_width*cube_size)
 			rect.center = [x,y]
 			self.rectangles.append(rect)
@@ -50,34 +51,39 @@ class Snake:
 
 
 snake = Snake(5,0,0)
-snake2 = Snake(10,5,5)
+new_x = new_y = 0
+x=y=0
 while running:
 	for event in pygame.event.get():
 		if event.type == pygame.QUIT:
 			running = False
 		if event.type == pygame.KEYDOWN:
-			if event.key == pygame.K_w:
-				new_x = snake.x
-				new_y = snake.y-1
-			if event.key == pygame.K_s:
-				new_x = snake.x
-				new_y = snake.y+1
-			if event.key == pygame.K_d:
-				new_x = snake.x+1
-				new_y = snake.y
-			if event.key == pygame.K_a:
-				new_x = snake.x-1
-				new_y = snake.y
-
-			if new_y > grid_size_y:
-				new_y = 0
-			elif new_y < 0:
-				new_y = grid_size_y
-
-			if new_x > grid_size_x:
+			
+			if (event.key == pygame.K_w) & (last_key != pygame.K_s):
 				new_x = 0
-			elif new_x < 0:
-				new_x = grid_size_x
-			snake.move(new_x,new_y)
-				
+				new_y = -1
+			if (event.key == pygame.K_s) & (last_key != pygame.K_w):
+				new_x = 0
+				new_y = 1
+			if (event.key == pygame.K_d) & (last_key != pygame.K_a):
+				new_x = 1
+				new_y = 0
+			if (event.key == pygame.K_a) & (last_key != pygame.K_d):
+				new_x = -1
+				new_y = 0
+			last_key = event.key
+
+	x = snake.x + new_x
+	y = snake.y + new_y
+	if y > grid_size_y:
+		y = 0
+	elif y < 0:
+		y = grid_size_y
+
+	if x > grid_size_x:
+		x = 0
+	elif x < 0:
+		x = grid_size_x
+	snake.move(x,y)			
 	pygame.display.update()
+	clock.tick(10)
